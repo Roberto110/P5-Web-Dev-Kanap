@@ -40,4 +40,15 @@ apiRequest.onreadystatechange = () => {
         }
     }
 
+// When the 'Add to cart' button is clicked; product id, color, and quantity is added to local storage.
+    addToCartButton.addEventListener('click', () => {
+        if(localStorage) {
+            localStorage.setItem('id', id);
+            localStorage.setItem('color', colorSelector.value);
+            localStorage.setItem('quantity', productQuantity.value)
+        } else {
+            alert("Sorry, your browser doesn't support local storage.")
+        }
+    })
 
+ 
