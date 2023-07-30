@@ -46,5 +46,3 @@ apiRequest.onreadystatechange = () => {
         }
     }
 }
-
-
