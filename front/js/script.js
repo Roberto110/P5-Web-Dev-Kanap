@@ -47,6 +47,12 @@ let createNewCard = () => {
 //     }
 // }
 
+
+/**
+ * Fetch request that gets product information from the API. The response is then parsed into JSON instead of text and then the json data
+ * is used to run the createNewCard() function and populate the new cards that are made.
+ */
+
 fetch('http://localhost:3000/api/products')
     .then(response => response.json())
     .then(data =>  {
