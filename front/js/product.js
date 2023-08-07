@@ -46,6 +46,7 @@ apiRequest.onreadystatechange = () => {
             localStorage.setItem('id', id);
             localStorage.setItem('color', colorSelector.value);
             localStorage.setItem('quantity', productQuantity.value)
+            console.log(localStorage)
         } else {
             alert("Sorry, your browser doesn't support local storage.")
         }
