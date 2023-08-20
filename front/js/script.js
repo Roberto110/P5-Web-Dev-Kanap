@@ -23,7 +23,25 @@ let createNewCard = () => {
     newCard.classList.add('productCard')
 }
 
-// // Creates a new XMLHttpRequest object
+/**
+ * Fetch request that gets product information from the API. The response is then parsed into JSON instead of text and then the json data
+ * is used to run the createNewCard() function and populate the new cards that are made.
+ */
+
+fetch('http://localhost:3000/api/products')
+    .then(response => response.json())
+    .then(data => {
+        for (let i = 0; i < data.length; i++) {
+            createNewCard();
+            card[i].setAttribute('href', './product.html?id=' + data[i]._id);
+            cardImage[i].setAttribute('src', data[i].imageUrl);
+            cardImage[i].setAttribute('alt', data[i].altTxt);
+            cardHeading[i].textContent = data[i].name;
+            cardParagraph[i].textContent = data[i].description;
+        }
+    })
+
+    // // Creates a new XMLHttpRequest object
 // let apiRequest = new XMLHttpRequest();
 
 // // Determines the type of request and the URL the request will be sent to.
@@ -47,21 +65,3 @@ let createNewCard = () => {
 //     }
 // }
 
-
-/**
- * Fetch request that gets product information from the API. The response is then parsed into JSON instead of text and then the json data
- * is used to run the createNewCard() function and populate the new cards that are made.
- */
-
-fetch('http://localhost:3000/api/products')
-    .then(response => response.json())
-    .then(data =>  {
-        for (let i = 0; i < data.length; i++) {
-                    createNewCard();
-                    card[i].setAttribute('href', './product.html?id=' + data[i]._id);
-                    cardImage[i].setAttribute('src', data[i].imageUrl);
-                    cardImage[i].setAttribute('alt', data[i].altTxt);
-                    cardHeading[i].textContent = data[i].name;
-                    cardParagraph[i].textContent = data[i].description;
-                }
-            })
