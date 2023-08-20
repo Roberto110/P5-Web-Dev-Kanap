@@ -41,35 +41,45 @@ apiRequest.onreadystatechange = () => {
 }
 // Click listener on the addToCartButton that creates a cart array and a product object. The product object contains the id, color and quantity
 // of the product shown on that page. Product is then pushed into the cart array and the cart is then sent to localStorage.
-addToCartButton.addEventListener('click', () => {
-    if (localStorage) {
-        if (colorSelector.value === "") {
-            alert('Please choose a color.')
-        } else if (productQuantity.value === "0") {
-            alert('Please choose a quantity.')
-        } else {
-            // Create cart variable and assign it to the cart item in localStorage. localStorage needs to be parsed to change it from a string to an object.
-            let cart = JSON.parse(localStorage.getItem('cart')) || [];
-            console.log('cart from local storage', cart) //I'm confused by this outcome. Even though product hasn't yet been pushed to the cart at this point, it acts like it has been.
-            let product = {
-                'id': id,
-                'color': colorSelector.value,
-                'quantity': productQuantity.value
-            };
-            let checkProduct = (cartItem) => {
-                return cartItem.id === product.id && cartItem.color === product.color;
-            }
-            if (cart.find(checkProduct)) {
-                cart.find(checkProduct).quantity = cart.find(checkProduct).quantity + product.quantity;
-                console.log(cart.find(checkProduct).quantity)
-            } else {
-                cart.push(product);
-            }
-            localStorage.setItem('cart', JSON.stringify(cart)); //This works without JSON.stringify. Ask Faizal why it works and if it is necessary.
-            console.log(cart);
-        }
-    } else {
-        alert("Sorry, your browser doesn't support local storage.")
+addToCartButton.addEventListener('click', (event) => {
+    if (!localStorage) { 
+        alert("Sorry, your browser doesn't support local storage.");
+        return;
     }
+
+    if (colorSelector.value === "") {
+        alert('Please choose a color.');
+        return;
+    }
+
+    if (productQuantity.value === "0") {
+        alert('Please choose a quantity.');
+        return;
+    } 
+
+    // Create cart variable and assign it to the cart item in localStorage. localStorage needs to be parsed to change it from a string to an object.
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    console.log('cart from local storage', cart) //I'm confused by this outcome. Even though product hasn't yet been pushed to the cart at this point, it acts like it has been.
+    
+    let product = {
+        'id': id,
+        'color': colorSelector.value,
+        'quantity': productQuantity.value
+    };
+
+    let productFound = cart.find((cartItem) => {
+        return cartItem.id === product.id && cartItem.color === product.color;
+    });
+
+    if (productFound) {
+        productFound.quantity = Number(productFound.quantity) + Number(product.quantity);
+    } else {
+        cart.push(product);
+    }
+
+    localStorage.setItem('cart', JSON.stringify(cart)); //This works without JSON.stringify. Ask Faizal why it works and if it is necessary.
+    console.log(cart);
+        
+    
 })
 
