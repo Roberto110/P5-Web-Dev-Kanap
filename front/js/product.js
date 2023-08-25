@@ -59,7 +59,7 @@ addToCartButton.addEventListener('click', (event) => {
 
     // Create cart variable and assign it to the cart item in localStorage. localStorage needs to be parsed to change it from a string to an object.
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    console.log('cart from local storage', cart) //I'm confused by this outcome. Even though product hasn't yet been pushed to the cart at this point, it acts like it has been.
+    console.log('cart from local storage', cart)
     
     let product = {
         'id': id,
@@ -77,7 +77,7 @@ addToCartButton.addEventListener('click', (event) => {
         cart.push(product);
     }
 
-    localStorage.setItem('cart', JSON.stringify(cart)); //This works without JSON.stringify. Ask Faizal why it works and if it is necessary.
+    localStorage.setItem('cart', JSON.stringify(cart));
     console.log(cart);
         
     
