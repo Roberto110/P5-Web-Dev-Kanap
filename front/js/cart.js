@@ -79,15 +79,21 @@ function addProduct(product, i) {
     totalPrice.textContent = product.price * cart[i].quantity;
     totalQuantity.textContent = cart[i].quantity + cart[i].quantity;
 
+// Delete button
     cartItemSettingsDelete.addEventListener('click', () => {
+        // Store the closest cart item in a variable.
         let closestCartItem = cartItemSettingsDelete.closest('.cart__item');
+        // get the data attributes (color, id) from that variable.
         closestCartItem.getAttribute('data-id');
         closestCartItem.getAttribute('data-color');
+        // find the index of the item in the cart array with the same id & color.
+        let closestCartItemIndex = cart.findIndex((cartItem) => cartItem.id == closestCartItem.getAttribute('data-id') && cartItem.color == closestCartItem.getAttribute('data-color'));
+        // delete the cart item with that index.
+        cart.splice([closestCartItemIndex], 1);
+        // add the updated cart array back to the localStorage.
+        localStorage.setItem('cart', JSON.stringify(cart));
+        // remove the closestCartItem from the page.
         cartItem.remove(closestCartItem);
-        // store cartItem.remove(cartItemSettingsDelete.closest('.cart__item')); into a variable. DONE.
-        // get the data attributes (color, id). DONE.
-        // go to cart from localstorage, look for product with same id and color, then remove it.
-        // store the cart back into the localstorage.
     })
 
 }
