@@ -83,10 +83,7 @@ function addProduct(product, i) {
     cartItemSettingsDelete.addEventListener('click', () => {
         // Store the closest cart item in a variable.
         let closestCartItem = cartItemSettingsDelete.closest('.cart__item');
-        // get the data attributes (color, id) from that variable.
-        closestCartItem.getAttribute('data-id');
-        closestCartItem.getAttribute('data-color');
-        // find the index of the item in the cart array with the same id & color.
+        // find the index of the item in the cart array with the same id & color as the closestCartItem variable.
         let closestCartItemIndex = cart.findIndex((cartItem) => cartItem.id == closestCartItem.getAttribute('data-id') && cartItem.color == closestCartItem.getAttribute('data-color'));
         // delete the cart item with that index.
         cart.splice([closestCartItemIndex], 1);
