@@ -110,7 +110,12 @@ function addProduct(product, i) {
 
     // Quantity change event listener
     cartItemSettingsInput.addEventListener('change', () => {
-        
+        let closestCartItem = cartItemSettingsInput.closest('.cart__item');
+        let closestCartItemIndex = cart.findIndex((cartItem) => cartItem.id == closestCartItem.getAttribute('data-id') && cartItem.color == closestCartItem.getAttribute('data-color'));
+        cart[closestCartItemIndex].quantity = cartItemSettingsInput.value;
+        localStorage.setItem('cart', JSON.stringify(cart));
+        calculateTotalQuantity();
+        // calculateTotalPrice()
     });
 }
 
@@ -122,7 +127,7 @@ let calculateTotalPrice = (results) => {
     }
     
     for (let i = 0; i < cart.length; i++) {
-        totalPriceVariable = totalPriceVariable + results[i].price * Number(cart[i].quantity);
+        totalPriceVariable = totalPriceVariable + results[i].price/* <--problem area*/ * Number(cart[i].quantity);
         totalPrice.textContent = totalPriceVariable;
     }
 }
