@@ -38,8 +38,9 @@ fetch('http://localhost:3000/api/products')
             cardImage[i].setAttribute('alt', data[i].altTxt);
             cardHeading[i].textContent = data[i].name;
             cardParagraph[i].textContent = data[i].description;
-        }
+        } 
     })
+    .catch(error => console.log(`Error: ${error}`));
 
     // // Creates a new XMLHttpRequest object
 // let apiRequest = new XMLHttpRequest();

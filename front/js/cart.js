@@ -4,19 +4,30 @@ let cartSection = document.getElementById('cart__items')
 // Variables for totals
 let totalQuantity = document.getElementById('totalQuantity');
 let totalPrice = document.getElementById('totalPrice');
+// Variables for form
+let orderButton = document.getElementById('order');
+let orderForm = document.getElementById('cart__order__form');
+let firstName = document.getElementById('firstName');
+let lastName = document.getElementById('lastName');
+let address = document.getElementById('address');
+let city = document.getElementById('city');
+let email = document.getElementById('email');
 
-// Gets the cart from local storage
+// Gets the cart from local storage and assigns it to a variable.
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 console.log(cart);
 
-
+// Create an array that will be used to store fetch requests for each item in the cart variable.
 let fetchArray = [];
 
-cart.forEach((product) => {
-    fetchArray.push(fetch('http://localhost:3000/api/products/' + product.id).then(response => response.json()))
+cart.forEach((productInCart) => {
+    fetchArray.push(fetch('http://localhost:3000/api/products/' + productInCart.id).then(response => response.json()))
 });
 
+// Promise.all accepts the fetchArray and returns a single promise 
 Promise.all(fetchArray).then(results => {
+    calculateTotalPrice(results); // !!Ask Faisal if this is in the right place!!
+    calculateTotalQuantity(); // !!Ask Faisal if this is in the right place!!
     results.forEach((product, i) => {
         console.log(product);
         addProduct(product, i);
@@ -30,6 +41,7 @@ function addProduct(product, i) {
     cartItem.setAttribute('class', 'cart__item');
     cartItem.setAttribute('data-id', cart[i].id); 
     cartItem.setAttribute('data-color', cart[i].color);
+
     // Product image
     let cartItemImageDiv = document.createElement('div');
     cartItemImageDiv.setAttribute('class', 'cart__item__img');
@@ -38,6 +50,7 @@ function addProduct(product, i) {
     cartItemImage.setAttribute('src', product.imageUrl)
     cartItemImage.setAttribute('alt', product.altTxt)
     cartItemImageDiv.append(cartItemImage);
+
     // Product information
     let cartItemContent = document.createElement('div');
     cartItemContent.setAttribute('class', 'cart__item__content');
@@ -52,6 +65,7 @@ function addProduct(product, i) {
     let productPrice = document.createElement('p');
     productPrice.textContent = '€' + product.price;
     cartItemDescription.append(productName, productColor, productPrice);
+    
     // Product settings
     let cartItemSettings = document.createElement('div');
     cartItemSettings.setAttribute('class', 'cart__item__content__settings');
@@ -76,10 +90,9 @@ function addProduct(product, i) {
     cartItemSettingsDelete.append(cartItemSettingsDeleteText)
     cartItemSettings.append(cartItemSettingsDelete);
     cartSection.append(cartItem);
-    totalPrice.textContent = product.price * cart[i].quantity;
-    totalQuantity.textContent = cart[i].quantity + cart[i].quantity;
 
-// Delete button
+
+    // Delete button
     cartItemSettingsDelete.addEventListener('click', () => {
         // Store the closest cart item in a variable.
         let closestCartItem = cartItemSettingsDelete.closest('.cart__item');
@@ -91,25 +104,69 @@ function addProduct(product, i) {
         localStorage.setItem('cart', JSON.stringify(cart));
         // remove the closestCartItem from the page.
         cartItem.remove(closestCartItem);
-    })
+        calculateTotalQuantity();
+        // calculateTotalPrice(); not working here <-----
+    });
 
+    // Quantity change event listener
+    cartItemSettingsInput.addEventListener('change', () => {
+        
+    });
 }
+
+// Loop that calculates the total price of the items in the cart. Not function as intended when using delete button.
+let calculateTotalPrice = (results) => {
+    let totalPriceVariable = 0; // needs to be moved out of loop
+    if (cart.length === 0) {
+        totalQuantity.textContent = 0;
+    }
+    
+    for (let i = 0; i < cart.length; i++) {
+        totalPriceVariable = totalPriceVariable + results[i].price * Number(cart[i].quantity);
+        totalPrice.textContent = totalPriceVariable;
+    }
+}
+
+// Loop that updates the total quantity of the items in the cart.
+const calculateTotalQuantity = () => {
+    if (cart.length === 0) {
+        totalQuantity.textContent = 0;
+    }
+
+    for (let i = 0, totalQuantityVariable = 0; i < cart.length; i++) {
+        totalQuantityVariable = totalQuantityVariable + Number(cart[i].quantity);
+        totalQuantity.textContent = totalQuantityVariable;
+    }
+}
+
+orderButton.addEventListener('click', (event) => {
+    event.preventDefault();
+    // let contact = {
+    //     "First Name": firstName.value,
+    //     "Last Name": lastName.value,
+    //     "Address": address.value, 
+    //     "City": city.value,
+    //     "Email": email.value
+    // };
+
+    const payload = new FormData(orderForm);
+    const data = Object.fromEntries(payload);
+    console.log(...payload);
+    fetch('http://localhost:3000/api/products/order', {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data),
+    })
+    .then(res => res.json())
+    .then(data => console.log(data))
+    .catch(err => console.log(err));
+    orderForm.reset();
+});
 
 
 /**
- * For this page I need to:
- * 
- * 1. Get the cart from the localStorage. e.g let cart = JSON.parse(localStorage.getItem('cart')) || []; DONE
- * 
- * 2. Use a for loop (or .forEach method) to iterate through each product in the cart. DONE
- * 
- * 2a. use multiple fetch to get the price for each product id (Promise.all([F1, F2, F3,F3]))
- * 
- * 2b. Get each product property and assign it to an id from the HTML to make it show up on the cart page. (similar to homepage).
- * 
- * 3. Iterate through the values of each product in the cart (multipied by their quantity) and assign it to the total price.
- * Also get quantity and assign to articles(total quantity).
- * 
  * Element.closest()
  * 4. Use a 'change' event listener on the quantity field to change the price, total price, and cart quantity value.
  * 5. Use a 'click' event listener to on the delete button to delete a product from the cart entirely.
