@@ -1,6 +1,6 @@
 // All variables
 // Variables for cart item
-let cartSection = document.getElementById('cart__items')
+let cartSection = document.getElementById('cart__items');
 // Variables for totals
 let totalQuantity = document.getElementById('totalQuantity');
 let totalPrice = document.getElementById('totalPrice');
@@ -12,10 +12,16 @@ let lastName = document.getElementById('lastName');
 let address = document.getElementById('address');
 let city = document.getElementById('city');
 let email = document.getElementById('email');
+let firstNameErrorMsg = document.getElementById('firstNameErrorMsg');
+let lastNameErrorMsg = document.getElementById('lastNameErrorMsg');
+let addressErrorMsg = document.getElementById('addressErrorMsg');
+let cityErrorMsg = document.getElementById('cityErrorMsg');
+let emailErrorMsg = document.getElementById('emailErrorMsg');
+
 
 // Gets the cart from local storage and assigns it to a variable.
-let cart = JSON.parse(localStorage.getItem('cart')) || [];
-console.log(cart);
+let/*faizal changed to 'var' - why?*/ cart = JSON.parse(localStorage.getItem('cart')) || [];
+console.log('cart: ', cart);
 
 // Create an array that will be used to store fetch requests for each item in the cart variable.
 let fetchArray = [];
@@ -24,15 +30,26 @@ cart.forEach((productInCart) => {
     fetchArray.push(fetch('http://localhost:3000/api/products/' + productInCart.id).then(response => response.json()))
 });
 
+let findMeAndUpdatePrice = (id, price) => { 
+    for (item of cart) { 
+        if (item.id == id) { 
+            item.price = price;
+        }
+    }
+}
+
 // Promise.all accepts the fetchArray and returns a single promise 
 Promise.all(fetchArray).then(results => {
-    calculateTotalPrice(results); // !!Ask Faisal if this is in the right place!!
-    calculateTotalQuantity(); // !!Ask Faisal if this is in the right place!!
     results.forEach((product, i) => {
-        console.log(product);
         addProduct(product, i);
-     })
+        //when got the reply from the fetch, check for each item in the cart and update its price
+        findMeAndUpdatePrice(product._id, product.price);
+    });
+    calculateTotalQuantity();
+    calculateTotalPrice();
 });
+
+
 
 // Iterates through each product in the local storage and creates a new entry for each product on the cart page.
 function addProduct(product, i) {
@@ -105,7 +122,7 @@ function addProduct(product, i) {
         // remove the closestCartItem from the page.
         cartItem.remove(closestCartItem);
         calculateTotalQuantity();
-        // calculateTotalPrice(); not working here <-----
+        calculateTotalPrice(); 
     });
 
     // Quantity change event listener
@@ -115,21 +132,24 @@ function addProduct(product, i) {
         cart[closestCartItemIndex].quantity = cartItemSettingsInput.value;
         localStorage.setItem('cart', JSON.stringify(cart));
         calculateTotalQuantity();
-        // calculateTotalPrice()
+        calculateTotalPrice()
     });
 }
 
-// Loop that calculates the total price of the items in the cart. Not function as intended when using delete button.
-let calculateTotalPrice = (results) => {
-    let totalPriceVariable = 0; // needs to be moved out of loop
+// Loop that calculates the total price of the items in the cart. Not functioning as intended.
+let calculateTotalPrice = () => {
     if (cart.length === 0) {
         totalQuantity.textContent = 0;
     }
-    
+
+    let totalPriceVariable = 0;
     for (let i = 0; i < cart.length; i++) {
-        totalPriceVariable = totalPriceVariable + results[i].price/* <--problem area*/ * Number(cart[i].quantity);
+        console.log('cart[i].price: ', cart[i].price);
+        console.log('Number(cart[i].quantity: ', Number(cart[i].quantity));
+        totalPriceVariable = totalPriceVariable + cart[i].price * Number(cart[i].quantity);
         totalPrice.textContent = totalPriceVariable;
     }
+    console.log('totalPriceVariable: ', totalPriceVariable);
 }
 
 // Loop that updates the total quantity of the items in the cart.
@@ -144,39 +164,86 @@ const calculateTotalQuantity = () => {
     }
 }
 
+let emailRegEx = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,}$/i;
+let textRegEx = /^[A-Z-]+$/i;
+let addressRegEx = /\w.-/
+
 orderButton.addEventListener('click', (event) => {
     event.preventDefault();
-    // let contact = {
-    //     "First Name": firstName.value,
-    //     "Last Name": lastName.value,
-    //     "Address": address.value, 
-    //     "City": city.value,
-    //     "Email": email.value
-    // };
+    if (textRegEx.test(firstName.value) === false) {
+        firstNameErrorMsg.textContent = "Please enter a valid name."
+    } else {
+        firstNameErrorMsg.textContent = "";
+    }
 
-    const payload = new FormData(orderForm);
-    const data = Object.fromEntries(payload);
-    console.log(...payload);
-    fetch('http://localhost:3000/api/products/order', {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data),
-    })
-    .then(res => res.json())
-    .then(data => console.log(data))
-    .catch(err => console.log(err));
-    orderForm.reset();
+    if (textRegEx.test(lastName.value) === false) {
+        lastNameErrorMsg.textContent = "Please enter a valid name."
+    } else {
+        lastNameErrorMsg.textContent = "";
+    }
+
+    if (addressRegEx.test(address.value) === false) {
+        addressErrorMsg.textContent = "Please enter a valid address."
+    } else {
+        addressErrorMsg.textContent = "";
+    }
+
+    if (textRegEx.test(city.value) === false) {
+        cityErrorMsg.textContent = "Please enter a valid city."
+    } else {
+        cityErrorMsg.textContent = "";
+    }
+
+    if (emailRegEx.test(email.value) === false) {
+        emailErrorMsg.textContent = "Please enter a valid email address."
+    } else {
+        emailErrorMsg.textContent = "";
+    }
+
+    if (textRegEx.test(firstName.value) === true && textRegEx.test(lastName.value) === true && textRegEx.test(address.value) === true && textRegEx.test(city.value) === true && emailRegEx.test(email.value) === true) {
+        let contact = {
+            "firstName": firstName.value,
+            "lastName": lastName.value,
+            "address": address.value, 
+            "city": city.value,
+            "email": email.value
+        };
+
+        let products = []
+        for (let i = 0; i < cart.length; i++){
+            products.push(cart[i].id);
+        }
+
+      
+        console.log('request body contact: ', contact);
+        console.log('request body productTable: ', products);
+        
+        console.table('request body: ', JSON.stringify({ contact, products }));
+
+
+        const postContact = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ contact, products }),
+        };
+
+        fetch('http://localhost:3000/api/products/order', postContact)
+        .then(response => {
+            if (!response.ok) {
+                throw Error(response.status);
+            }
+            return response.json();
+        }).then(data => {
+            console.log(data);
+        })
+    }
 });
 
-
-/**
- * Element.closest()
- * 4. Use a 'change' event listener on the quantity field to change the price, total price, and cart quantity value.
- * 5. Use a 'click' event listener to on the delete button to delete a product from the cart entirely.
- * 
- * for both update and delete, on the event object get the closest element (article), 
- * from the article get the data-id and data-color, with the id and color look at the storage (cart), do update or delete on the item from the card
- * re-compute the total items and total price.
- **/
+/* 
+Issues to discuss with Faizal: 
+1. I'm struggling to get the total price function working. I'm not sure how to reference the price variable of the product.
+2. POST request is returning a 400 error (bad request). What am I doing wrong when forming the request?
+3. Is there a better way of implementing the RegEx on the order button? My solution looks too messy to be the best way of doing it. 
+*/
