@@ -166,7 +166,7 @@ const calculateTotalQuantity = () => {
 
 let emailRegEx = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,}$/i;
 let textRegEx = /^[A-Z-]+$/i;
-let addressRegEx = /\w.-/
+let addressRegEx = /^[0-9]+\s?[\w]+\s?[\w]+/;
 
 orderButton.addEventListener('click', (event) => {
     event.preventDefault();
@@ -200,7 +200,7 @@ orderButton.addEventListener('click', (event) => {
         emailErrorMsg.textContent = "";
     }
 
-    if (textRegEx.test(firstName.value) === true && textRegEx.test(lastName.value) === true && textRegEx.test(address.value) === true && textRegEx.test(city.value) === true && emailRegEx.test(email.value) === true) {
+    if (textRegEx.test(firstName.value) && textRegEx.test(lastName.value) && addressRegEx.test(address.value) && textRegEx.test(city.value) && emailRegEx.test(email.value)) {
         let contact = {
             "firstName": firstName.value,
             "lastName": lastName.value,
@@ -208,6 +208,7 @@ orderButton.addEventListener('click', (event) => {
             "city": city.value,
             "email": email.value
         };
+        orderForm.reset();
 
         let products = []
         for (let i = 0; i < cart.length; i++){
@@ -236,14 +237,8 @@ orderButton.addEventListener('click', (event) => {
             }
             return response.json();
         }).then(data => {
-            console.log(data);
+            console.log(data, "http://127.0.0.1:5500/front/html/confirmation.html/" + data.orderId);
+            window.location.href = "http://127.0.0.1:5500/front/html/confirmation.html?id=" + data.orderId;
         })
     }
 });
-
-/* 
-Issues to discuss with Faizal: 
-1. I'm struggling to get the total price function working. I'm not sure how to reference the price variable of the product.
-2. POST request is returning a 400 error (bad request). What am I doing wrong when forming the request?
-3. Is there a better way of implementing the RegEx on the order button? My solution looks too messy to be the best way of doing it. 
-*/

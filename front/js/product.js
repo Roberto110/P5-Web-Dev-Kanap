@@ -14,7 +14,7 @@ const id = urlParams.get('id')
 
 // Fetch API request using async/await that will get the required info from the API and populate the web page with the info attained. 
 const url = 'http://localhost:3000/api/products/' + id;
-const request = new Request(url)
+const request = new Request(url);
 
 async function getData() {
     try {
